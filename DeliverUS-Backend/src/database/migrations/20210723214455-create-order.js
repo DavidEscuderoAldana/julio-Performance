@@ -27,6 +27,11 @@ module.exports = {
         allowNull: false,
         type: Sequelize.DOUBLE
       },
+      currentStatus: {
+        type: Sequelize.ENUM('pending', 'in process', 'sent', 'delivered'),
+        allowNull: false,
+        defaultValue: 'pending'
+      },
       restaurantId: {
         allowNull: false,
         type: Sequelize.INTEGER,
@@ -57,8 +62,8 @@ module.exports = {
         type: Sequelize.DATE,
         defaultValue: new Date()
       }
-
     })
+
     await queryInterface.createTable('OrderProducts', {
       orderId: {
         allowNull: false,
@@ -99,16 +104,17 @@ module.exports = {
         type: Sequelize.DATE,
         defaultValue: new Date()
       }
-
     })
-    await queryInterface.addIndex(
-      'OrderProducts',
-      {
-        fields: ['orderId', 'productId'],
-        unique: true
-      }
-    )
+
+    await queryInterface.addIndex('OrderProducts', {
+      fields: ['orderId', 'productId'],
+      unique: true
+    })
+
+    await queryInterface.addIndex('Orders', ['restaurantId'])
+    await queryInterface.addIndex('Orders', ['userId'])
   },
+
   down: async (queryInterface, Sequelize) => {
     await queryInterface.dropTable('OrderProducts')
     await queryInterface.dropTable('Orders')
